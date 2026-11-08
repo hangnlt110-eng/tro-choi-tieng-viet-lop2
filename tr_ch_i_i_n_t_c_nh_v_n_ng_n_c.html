@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thi Đua 5 Nhóm: Đôi bạn cá nhỏ và nòng nọc - Lớp 2</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Baloo 2 & Quicksand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- QRCode.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .font-baloo {
+      font-family: 'Baloo 2', cursive;
+    }
+
+    /* Hiệu ứng bập bềnh sinh động */
+    @keyframes floatLotus {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-6px) rotate(2deg); }
+    }
+    @keyframes swimSmooth {
+      0%, 100% { transform: translateY(0px) scaleX(1); }
+      50% { transform: translateY(-7px) scaleX(1); }
+    }
+    .animate-float {
+      animation: floatLotus 4s ease-in-out infinite;
+    }
+    .animate-fish {
+      animation: swimSmooth 3s ease-in-out infinite;
+    }
+
+    /* Nhấp nháy ô đang chờ học sinh chọn */
+    @keyframes slotPulse {
+      0%, 100% { border-color: #0284c7; background-color: #e0f2fe; box-shadow: 0 0 10px rgba(14, 165, 233, 0.4); }
+      50% { border-color: #059669; background-color: #ecfdf5; box-shadow: 0 0 18px rgba(16, 185, 129, 0.6); }
+    }
+    .slot-active {
+      animation: slotPulse 1.4s infinite;
+    }
+
+    /* Rung lắc khi sai hoặc cảnh báo */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+    .shake-anim {
+      animation: shake 0.4s ease-in-out;
+    }
+
+    /* Tinh chỉnh thanh cuộn */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #34d399;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-sky-300 via-teal-100 to-emerald-200 min-h-screen text-slate-800 flex flex-col justify-between overflow-x-hidden p-2 md:p-5">
+
+  <!-- Cảnh vật hoạt hình ngộ nghĩnh trang trí góc màn hình -->
+  <div class="fixed top-3 left-4 text-4xl animate-float pointer-events-none opacity-80 z-0">🪷</div>
+  <div class="fixed bottom-3 left-6 text-5xl animate-fish pointer-events-none opacity-80 z-0">🐟</div>
+  <div class="fixed top-12 right-6 text-5xl animate-float pointer-events-none opacity-90 z-0">🐸</div>
+  <div class="fixed bottom-4 right-8 text-4xl animate-fish pointer-events-none opacity-70 z-0">🫧</div>
+
+  <!-- THANH ĐIỀU HƯỚNG CHUNG: CHUYỂN ĐỔI CHẾ ĐỘ MÁY CHIẾU TV <-> MÁY IPAD HỌC SINH -->
+  <header class="max-w-7xl w-full mx-auto bg-white/95 backdrop-blur-md rounded-2xl md:rounded-3xl p-3 md:p-4 shadow-xl border-4 border-emerald-300 flex flex-wrap items-center justify-between gap-3 relative z-30 mb-3">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-2xl flex items-center justify-center text-white text-2xl md:text-3xl shadow-md transform -rotate-3">
+        🐸
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="bg-emerald-100 text-emerald-800 font-extrabold px-2.5 py-0.5 rounded-full text-xs md:text-sm border border-emerald-300">
+            Tiếng Việt Lớp 2 • Thi Đua 5 Nhóm
+          </span>
+          <span id="role-badge" class="bg-sky-500 text-white font-bold px-2 py-0.5 rounded-full text-xs">
+            Màn hình Máy Chiếu
+          </span>
+        </div>
+        <h1 class="font-baloo text-lg md:text-2xl font-extrabold text-teal-900 leading-tight">
+          Đôi bạn cá nhỏ và nòng nọc
+        </h1>
+      </div>
+    </div>
+
+    <!-- Nút đổi vai trò (Dành cho cô giáo dễ dàng chuyển tab hoặc học sinh mở link) -->
+    <div class="flex items-center gap-2">
+      <div class="bg-slate-100 p-1 rounded-2xl border-2 border-teal-200 flex items-center gap-1 shadow-inner">
+        <button id="nav-host-btn" onclick="switchView('host')" class="px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-xs md:text-sm font-baloo font-bold transition flex items-center gap-1.5 bg-emerald-500 text-white shadow-sm">
+          <i class="fa-solid fa-tv"></i>
+          <span>Màn Hình TV (Cô Giáo)</span>
+        </button>
+        <button id="nav-player-btn" onclick="switchView('player')" class="px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-xs md:text-sm font-baloo font-bold transition flex items-center gap-1.5 text-slate-700 hover:text-emerald-700">
+          <i class="fa-solid fa-tablet-screen-button"></i>
+          <span>iPad Học Sinh</span>
+        </button>
+      </div>
+
+      <button id="global-sound-btn" onclick="toggleSound()" class="w-10 h-10 md:w-11 md:h-11 bg-teal-100 hover:bg-teal-200 text-teal-800 border-2 border-teal-300 rounded-2xl flex items-center justify-center text-base md:text-lg transition active:scale-90 shadow-sm" title="Bật/Tắt âm thanh">
+        <i id="global-sound-icon" class="fa-solid fa-bell"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================================== -->
+  <!-- 1. MÀN HÌNH MÁY CHIẾU / TV CỦA GIÁO VIÊN (HOST VIEW) -->
+  <!-- ============================================================== -->
+  <main id="host-view" class="max-w-7xl w-full mx-auto flex-1 flex flex-col justify-start relative z-10 space-y-3 md:space-y-4">
+    
+    <!-- THANH BÀI ĐỌC TRỌNG TÂM CỦA BÀI HỌC -->
+    <section class="bg-white/95 backdrop-blur-md rounded-2xl md:rounded-3xl p-4 md:p-5 shadow-xl border-4 border-teal-300">
+      <div class="border-b border-teal-100 pb-2 mb-3">
+        <div class="flex items-center gap-2 text-teal-900 font-extrabold text-sm md:text-base">
+          <span class="text-xl">📖</span>
+          <span>Đề bài: Chọn từ trong ngoặc đơn điền vào chỗ trống: 
+            <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-300 font-bold">
+              (nhớ, tươi vui, thân thiết, vui đùa)
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Khung đoạn văn minh họa trên máy chiếu -->
+      <div class="bg-gradient-to-r from-teal-50 via-sky-50 to-emerald-50 p-3 md:p-4 rounded-xl border-2 border-teal-200 text-slate-800 text-base md:text-xl font-bold leading-relaxed">
+        <span>Cá nhỏ và nòng nọc là đôi bạn</span>
+        <span class="inline-block bg-white text-emerald-800 border-2 border-emerald-400 px-3 py-0.5 rounded-xl mx-1 shadow-sm font-baloo">
+          (1) ....................
+        </span>
+        <span>. Hằng ngày, chúng cùng nhau bơi lội. Thế rồi nòng nọc trở thành ếch. Nó phải lên bờ để sinh sống. Nhưng nó vẫn</span>
+        <span class="inline-block bg-white text-emerald-800 border-2 border-emerald-400 px-3 py-0.5 rounded-xl mx-1 shadow-sm font-baloo">
+          (2) ....................
+        </span>
+        <span>cá nhỏ. Thỉnh thoảng, nó nhảy xuống ao</span>
+        <span class="inline-block bg-white text-emerald-800 border-2 border-emerald-400 px-3 py-0.5 rounded-xl mx-1 shadow-sm font-baloo">
+          (3) ....................
+        </span>
+        <span>cùng cá nhỏ.</span>
+      </div>
+    </section>
+
+    <!-- THANH ĐIỀU KHIỂN & ĐỒNG HỒ ĐẾM NGƯỢC CỦA GIÁO VIÊN -->
+    <section class="bg-white/95 backdrop-blur-md rounded-2xl md:rounded-3xl p-3 md:p-4 shadow-xl border-4 border-emerald-300 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <!-- Đồng hồ bấm giờ -->
+        <div class="bg-slate-900 text-emerald-400 font-mono text-2xl md:text-3xl px-4 py-1.5 rounded-2xl border-2 border-emerald-500 shadow-inner flex items-center gap-2">
+          <i class="fa-solid fa-stopwatch text-base text-amber-400"></i>
+          <span id="tv-timer">00.0s</span>
+        </div>
+
+        <!-- Trạng thái vòng thi -->
+        <div id="tv-status-badge" class="px-3.5 py-2 bg-amber-100 text-amber-900 font-baloo font-extrabold text-sm md:text-base rounded-2xl border-2 border-amber-300 flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-amber-500 animate-ping"></span>
+          <span>Chưa Bắt Đầu</span>
+        </div>
+      </div>
+
+      <!-- Bộ nút hành động của Cô Giáo -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="start-round-btn" onclick="startCountdownAndRace()" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-baloo text-base md:text-lg font-extrabold rounded-2xl shadow-lg active:scale-95 transition flex items-center gap-2 border-2 border-emerald-300">
+          <i class="fa-solid fa-play"></i>
+          <span>Bắt Đầu Cuộc Thi</span>
+        </button>
+
+        <button onclick="lockAndEvaluate()" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-baloo text-sm md:text-base font-extrabold rounded-2xl shadow-md active:scale-95 transition flex items-center gap-2 border-2 border-amber-300">
+          <i class="fa-solid fa-flag-checkered"></i>
+          <span>Khóa Bài / Công Bố</span>
+        </button>
+
+        <button onclick="resetAllCompetition()" class="px-3.5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-baloo text-sm md:text-base font-extrabold rounded-2xl shadow-sm active:scale-95 transition flex items-center gap-1.5 border border-slate-300" title="Đặt lại lượt mới">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Làm Lại</span>
+        </button>
+
+        <!-- Nút mô phỏng nộp bài nhanh để Cô Giáo demo không cần nhiều iPad -->
+        <button onclick="simulateAllTeamsDemo()" class="px-3.5 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white font-baloo text-sm md:text-base font-extrabold rounded-2xl shadow-md active:scale-95 transition flex items-center gap-1.5 border-2 border-indigo-300" title="Mô phỏng cả 5 nhóm lần lượt nộp bài để xem hiệu ứng xếp hạng">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>Demo 5 Nhóm Nộp</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- BẢNG THEO DÕI THỜI GIAN THỰC CỦA 5 NHÓM VÀ MÃ QR -->
+    <section class="grid grid-cols-1 lg:grid-cols-4 gap-3 md:gap-4 flex-1">
+      
+      <!-- CỘT 1 ĐẾN 3: TIẾN ĐỘ THI ĐUA VÀ KẾT QUẢ CỦA 5 NHÓM -->
+      <div class="lg:col-span-3 bg-white/95 backdrop-blur-md rounded-2xl md:rounded-3xl p-4 shadow-xl border-4 border-teal-300 flex flex-col justify-between">
+        <div class="flex items-center justify-between border-b border-teal-100 pb-2 mb-3">
+          <h2 class="font-baloo text-xl md:text-2xl font-black text-teal-900 flex items-center gap-2">
+            <span>🏆</span> Bảng Thi Đua Thời Gian Thực (5 Nhóm)
+          </h2>
+          <div class="text-xs md:text-sm font-semibold text-slate-500 flex items-center gap-1">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+            <span>Tự động cập nhật tức thì</span>
+          </div>
+        </div>
+
+        <!-- Danh sách 5 Nhóm hiển thị thẻ ngang -->
+        <div id="teams-dashboard-container" class="space-y-2.5 flex-1 flex flex-col justify-around">
+          <!-- Render tự động 5 nhóm từ Javascript -->
+        </div>
+      </div>
+
+      <!-- CỘT 4: MÃ QR QUÉT BẰNG IPAD VÀ HƯỚNG DẪN DÀNH CHO CẢ LỚP -->
+      <div class="lg:col-span-1 bg-white/95 backdrop-blur-md rounded-2xl md:rounded-3xl p-4 shadow-xl border-4 border-emerald-300 flex flex-col items-center justify-between text-center">
+        <div>
+          <span class="bg-amber-100 text-amber-900 font-extrabold px-3 py-1 rounded-full text-xs md:text-sm border border-amber-300">
+            Dùng iPad Quét Mã QR
+          </span>
+          <p class="text-xs text-slate-600 mt-2 font-semibold">
+            Đại diện 5 nhóm mở camera iPad để vào ngay phòng thi:
+          </p>
+        </div>
+
+        <!-- Vùng chứa mã QR Code -->
+        <div class="p-3 bg-white rounded-2xl shadow-inner border-2 border-teal-200 my-2">
+          <div id="qrcode-box" class="flex justify-center items-center"></div>
+        </div>
+
+        <div class="w-full bg-teal-50 p-2.5 rounded-xl border border-teal-200 text-xs text-teal-950 font-bold space-y-1">
+          <div>📱 Nhóm 1 • Nhóm 2 • Nhóm 3</div>
+          <div>Nhóm 4 • Nhóm 5</div>
+        </div>
+
+        <button onclick="openPlayerInNewTab()" class="mt-2 w-full py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-baloo font-bold text-sm shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          <span>Mở 1 Tab Học Sinh Thử</span>
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ============================================================== -->
+  <!-- 2. GIAO DIỆN IPAD HỌC SINH (PLAYER VIEW) -->
+  <!-- ============================================================== -->
+  <main id="player-view" class="max-w-3xl w-full mx-auto flex-1 flex flex-col justify-start relative z-10 hidden space-y-3 md:space-y-4">
+    
+    <!-- THANH CHỌN NHÓM & TRẠNG THÁI IPAD -->
+    <section class="bg-white/95 backdrop-blur-md rounded-2xl md:rounded-3xl p-3 md:p-4 shadow-xl border-4 border-emerald-300 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <label for="team-select" class="font-baloo font-black text-teal-900 text-base md:text-lg flex items-center gap-1.5">
+          <span>🏷️ Bé chọn nhóm:</span>
+        </label>
+        <select id="team-select" onchange="onSelectTeam(this.value)" class="bg-emerald-50 border-2 border-emerald-400 text-emerald-950 font-baloo font-bold rounded-xl px-3 py-1.5 text-base md:text-lg outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm cursor-pointer">
+          <option value="1">Nhóm 1</option>
+          <option value="2">Nhóm 2</option>
+          <option value="3">Nhóm 3</option>
+          <option value="4">Nhóm 4</option>
+          <option value="5">Nhóm 5</option>
+        </select>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <div class="bg-slate-900 text-amber-400 font-mono text-xl md:text-2xl px-3.5 py-1 rounded-xl border border-slate-700 shadow-inner flex items-center gap-1.5">
+          <i class="fa-solid fa-stopwatch text-sm"></i>
+          <span id="player-timer">00.0s</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- MÀN HÌNH CHỜ KHI CHƯA BẮT ĐẦU HOẶC ĐÃ KHÓA BÀI -->
+    <div id="player-waiting-overlay" class="bg-white/95 backdrop-blur-md rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-amber-300 text-center flex flex-col items-center justify-center space-y-3">
+      <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-4xl shadow-inner animate-bounce">
+        ⏳
+      </div>
+      <h3 id="waiting-title" class="font-baloo text-2xl md:text-3xl font-black text-amber-900">
+        Chờ Cô Giáo Bấm Bắt Đầu...
+      </h3>
+      <p id="waiting-desc" class="text-slate-600 text-sm md:text-base font-semibold max-w-md">
+        Các bé trong nhóm hãy hội ý, sẵn sàng các ngón tay để bấm chọn từ điền vào chỗ trống thật nhanh nhé!
+      </p>
+    </div>
+
+    <!-- KHUNG LÀM BÀI CHÍNH CỦA HỌC SINH TRÊN IPAD -->
+    <div id="player-workspace" class="space-y-3 md:space-y-4 hidden">
+      
+      <!-- Đoạn văn có 3 ô trống bấm để điền -->
+      <section class="bg-white/95 backdrop-blur-md rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-xl border-4 border-teal-300">
+        <div class="flex items-center justify-between border-b border-teal-100 pb-2 mb-3">
+          <div class="text-sm md:text-base font-bold text-teal-900 flex items-center gap-1.5">
+            <span>✏️</span>
+            <span>Bấm thẻ từ bên dưới để điền vào 3 ô:</span>
+          </div>
+          <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-300">
+            Có 1 từ thừa!
+          </span>
+        </div>
+
+        <div class="bg-gradient-to-r from-teal-50 via-sky-50 to-emerald-50 p-4 md:p-5 rounded-2xl border-2 border-teal-200 text-slate-800 text-lg md:text-2xl font-bold leading-loose md:leading-[3.2rem]">
+          <span>Cá nhỏ và nòng nọc là đôi bạn</span>
+
+          <!-- Ô TRỐNG 1 -->
+          <button id="p-slot-0" onclick="handlePlayerSlotClick(0)" class="inline-flex items-center justify-center min-w-[120px] md:min-w-[150px] h-11 md:h-12 mx-1 px-3 border-3 md:border-4 border-dashed rounded-2xl cursor-pointer transition-all align-middle shadow-sm slot-active">
+            <span class="text-sky-400 text-sm md:text-base italic">[ Ô số 1 ]</span>
+          </button>
+
+          <span>. Hằng ngày, chúng cùng nhau bơi lội. Thế rồi nòng nọc trở thành ếch. Nó phải lên bờ để sinh sống. Nhưng nó vẫn</span>
+
+          <!-- Ô TRỐNG 2 -->
+          <button id="p-slot-1" onclick="handlePlayerSlotClick(1)" class="inline-flex items-center justify-center min-w-[120px] md:min-w-[150px] h-11 md:h-12 mx-1 px-3 border-3 md:border-4 border-dashed rounded-2xl cursor-pointer transition-all align-middle shadow-sm">
+            <span class="text-sky-400 text-sm md:text-base italic">[ Ô số 2 ]</span>
+          </button>
+
+          <span>cá nhỏ. Thỉnh thoảng, nó nhảy xuống ao</span>
+
+          <!-- Ô TRỐNG 3 -->
+          <button id="p-slot-2" onclick="handlePlayerSlotClick(2)" class="inline-flex items-center justify-center min-w-[120px] md:min-w-[150px] h-11 md:h-12 mx-1 px-3 border-3 md:border-4 border-dashed rounded-2xl cursor-pointer transition-all align-middle shadow-sm">
+            <span class="text-sky-400 text-sm md:text-base italic">[ Ô số 3 ]</span>
+          </button>
+
+          <span>cùng cá nhỏ.</span>
+        </div>
+      </section>
+
+      <!-- KHAY 4 THẺ TỪ TRONG NGOẶC CHO HỌC SINH CHẠM -->
+      <section class="bg-white/95 backdrop-blur-md rounded-2xl md:rounded-3xl p-3 md:p-4 shadow-xl border-4 border-teal-200">
+        <div class="text-xs md:text-sm font-bold text-teal-800 mb-2 flex items-center justify-between">
+          <span>🍃 Thẻ từ trong ngoặc (Bé chạm để điền):</span>
+          <span class="text-slate-500 font-semibold text-xs">Chạm vào ô trên để gỡ ra</span>
+        </div>
+
+        <div id="player-words-bank" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 md:gap-3">
+          <!-- Render 4 từ qua Javascript -->
+        </div>
+      </section>
+
+      <!-- THÔNG BÁO TRẠNG THÁI CỦA NHÓM KHI NỘP -->
+      <div id="player-submitted-banner" class="hidden p-4 rounded-2xl bg-emerald-100 border-2 border-emerald-400 text-emerald-950 text-center font-baloo shadow-md">
+        <div class="text-xl md:text-2xl font-black">🎉 NHÓM ĐÃ NỘP BÀI THÀNH CÔNG!</div>
+        <div class="text-sm md:text-base font-semibold mt-1">
+          Kết quả của nhóm đã được gửi lên màn hình TV của cô giáo! Hãy nhìn lên màn hình lớn nhé!
+        </div>
+      </div>
+
+      <!-- NÚT NỘP BÀI DÀNH CHO NHÓM -->
+      <div class="flex items-center justify-center gap-3 pt-1">
+        <button id="player-submit-btn" onclick="submitPlayerAnswers()" class="w-full sm:w-2/3 py-3.5 md:py-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:to-teal-600 text-white font-baloo text-xl md:text-2xl font-black rounded-2xl shadow-xl active:scale-95 transition flex items-center justify-center gap-2 border-3 border-emerald-300">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span>NỘP BÀI CHO NHÓM</span>
+        </button>
+
+        <button onclick="clearPlayerSlots()" class="px-5 py-3.5 md:py-4 bg-amber-100 hover:bg-amber-200 text-amber-900 font-baloo text-lg md:text-xl font-bold rounded-2xl shadow-md border-2 border-amber-300 active:scale-95 transition" title="Xóa chọn lại">
+          <i class="fa-solid fa-eraser"></i>
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL ĐẾM NGƯỢC 3-2-1 BÙNG NỔ KHI BẮT ĐẦU -->
+  <div id="countdown-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-50 hidden">
+    <div class="text-center">
+      <div id="countdown-number" class="font-baloo text-8xl md:text-9xl font-black text-amber-400 animate-ping">
+        3
+      </div>
+      <div id="countdown-label" class="font-baloo text-2xl md:text-4xl font-extrabold text-white mt-4 tracking-wide">
+        CHUẨN BỊ...
+      </div>
+    </div>
+  </div>
+
+  <footer class="w-full text-center py-2 text-xs md:text-sm font-semibold text-teal-800 relative z-10">
+    Hệ thống thi đua học tập tương tác Tiếng Việt Lớp 2 • Trường Tiểu Học 🌿🐸🐟
+  </footer>
+
+  <!-- ============================================================== -->
+  <!-- SCRIPT LOGIC: TOÀN BỘ CƠ CHẾ ĐỒNG BỘ THỜI GIAN THỰC & CHƠI BÀI -->
+  <!-- ============================================================== -->
+  <script>
+    // Dữ liệu và đáp án chuẩn
+    const WORDS = ["nhớ", "tươi vui", "thân thiết", "vui đùa"];
+    const CORRECT_ANSWERS = ["thân thiết", "nhớ", "vui đùa"];
+
+    // Thông tin 5 nhóm
+    const TEAMS = [
+      { id: 1, name: "Nhóm 1", mascot: "🐸", color: "from-emerald-500 to-teal-600" },
+      { id: 2, name: "Nhóm 2", mascot: "🐟", color: "from-amber-500 to-orange-600" },
+      { id: 3, name: "Nhóm 3", mascot: "🐢", color: "from-emerald-600 to-green-700" },
+      { id: 4, name: "Nhóm 4", mascot: "🦐", color: "from-rose-500 to-red-600" },
+      { id: 5, name: "Nhóm 5", mascot: "🦀", color: "from-sky-500 to-blue-600" }
+    ];
+
+    // Trạng thái cuộc thi chung (Competition State)
+    let compState = {
+      status: 'idle', // 'idle' | 'running' | 'locked'
+      startTime: 0,
+      elapsedTime: 0,
+      // Dữ liệu nộp bài của từng nhóm: { submitted: boolean, answers: [..], correctCount: 0, timeTaken: 0, rank: null }
+      teamsData: {
+        1: { submitted: false, answers: [null, null, null], correctCount: 0, timeTaken: 0, rank: null },
+        2: { submitted: false, answers: [null, null, null], correctCount: 0, timeTaken: 0, rank: null },
+        3: { submitted: false, answers: [null, null, null], correctCount: 0, timeTaken: 0, rank: null },
+        4: { submitted: false, answers: [null, null, null], correctCount: 0, timeTaken: 0, rank: null },
+        5: { submitted: false, answers: [null, null, null], correctCount: 0, timeTaken: 0, rank: null }
+      }
+    };
+
+    // Trạng thái iPad cá nhân hiện tại
+    let currentView = 'host'; // 'host' hoặc 'player'
+    let currentTeamId = 1;
+    let playerSlotValues = [null, null, null];
+    let playerActiveSlot = 0;
+    let timerInterval = null;
+    let isSoundMuted = false;
+
+    // Kênh truyền tin thời gian thực giữa màn hình TV và các iPad
+    // Sử dụng BroadcastChannel (đồng bộ tức thì giữa các tab & cửa sổ trình duyệt cùng lúc)
+    let liveChannel = null;
+    try {
+      liveChannel = new BroadcastChannel('tv2_competition_channel');
+      liveChannel.onmessage = (event) => {
+        handleIncomingMessage(event.data);
+      };
+    } catch (e) {
+      console.log('BroadcastChannel không hỗ trợ, sử dụng lưu trữ nội bộ');
+    }
+
+    // -------------------------------------------------------------
+    // ÂM THANH BẰNG WEB AUDIO API
+    // -------------------------------------------------------------
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playBeep(freq, type = 'sine', duration = 0.1, gainVal = 0.2) {
+      if (isSoundMuted) return;
+      try {
+        const ctx = getAudioCtx();
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        g.gain.setValueAtTime(gainVal, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playCelebrationSound() {
+      if (isSoundMuted) return;
+      try {
+        const ctx = getAudioCtx();
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const t = ctx.currentTime + idx * 0.12;
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0.3, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.36);
+        });
+      } catch (e) {}
+    }
+
+    function toggleSound() {
+      isSoundMuted = !isSoundMuted;
+      const icon = document.getElementById('global-sound-icon');
+      if (isSoundMuted) {
+        icon.className = 'fa-solid fa-bell-slash text-rose-500';
+      } else {
+        icon.className = 'fa-solid fa-bell text-teal-800';
+        playBeep(880, 'sine', 0.1, 0.2);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ĐỒNG BỘ THỜI GIAN THỰC (REALTIME BROADCAST)
+    // -------------------------------------------------------------
+    function broadcastState(action, payload = {}) {
+      const message = {
+        action: action,
+        state: compState,
+        payload: payload,
+        timestamp: Date.now()
+      };
+      if (liveChannel) {
+        liveChannel.postMessage(message);
+      }
+      // Lưu trữ đồng bộ dự phòng
+      try {
+        localStorage.setItem('tv2_comp_state_backup', JSON.stringify(compState));
+      } catch(e) {}
+    }
+
+    function handleIncomingMessage(msg) {
+      if (!msg) return;
+      if (msg.state) {
+        compState = msg.state;
+      }
+      
+      if (msg.action === 'START_RACE') {
+        runClientTimer(compState.startTime);
+      } else if (msg.action === 'LOCK_RACE') {
+        stopClientTimer();
+      } else if (msg.action === 'RESET_RACE') {
+        stopClientTimer();
+        playerSlotValues = [null, null, null];
+        playerActiveSlot = 0;
+        document.getElementById('player-submitted-banner').classList.add('hidden');
+        document.getElementById('player-submit-btn').disabled = false;
+        document.getElementById('player-submit-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+
+      updateAllUI();
+    }
+
+    // Lắng nghe sự kiện lưu trữ giữa các cửa sổ
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'tv2_comp_state_backup' && e.newValue) {
+        try {
+          compState = JSON.parse(e.newValue);
+          updateAllUI();
+        } catch(err) {}
+      }
+    });
+
+    // -------------------------------------------------------------
+    // CHUYỂN ĐỔI CHẾ ĐỘ VIEW (HOST <-> PLAYER)
+    // -------------------------------------------------------------
+    function switchView(viewName) {
+      currentView = viewName;
+      const hostView = document.getElementById('host-view');
+      const playerView = document.getElementById('player-view');
+      const navHostBtn = document.getElementById('nav-host-btn');
+      const navPlayerBtn = document.getElementById('nav-player-btn');
+      const roleBadge = document.getElementById('role-badge');
+
+      if (viewName === 'host') {
+        hostView.classList.remove('hidden');
+        playerView.classList.add('hidden');
+        navHostBtn.className = "px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-xs md:text-sm font-baloo font-bold transition flex items-center gap-1.5 bg-emerald-500 text-white shadow-sm";
+        navPlayerBtn.className = "px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-xs md:text-sm font-baloo font-bold transition flex items-center gap-1.5 text-slate-700 hover:text-emerald-700";
+        roleBadge.textContent = "Màn hình Máy Chiếu";
+        roleBadge.className = "bg-sky-500 text-white font-bold px-2 py-0.5 rounded-full text-xs";
+      } else {
+        hostView.classList.add('hidden');
+        playerView.classList.remove('hidden');
+        navPlayerBtn.className = "px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-xs md:text-sm font-baloo font-bold transition flex items-center gap-1.5 bg-emerald-500 text-white shadow-sm";
+        navHostBtn.className = "px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-xs md:text-sm font-baloo font-bold transition flex items-center gap-1.5 text-slate-700 hover:text-emerald-700";
+        roleBadge.textContent = "Giao diện iPad";
+        roleBadge.className = "bg-amber-500 text-white font-bold px-2 py-0.5 rounded-full text-xs";
+        initPlayerBank();
+      }
+      updateAllUI();
+    }
+
+    function openPlayerInNewTab() {
+      // Mở thêm 1 cửa sổ mới với tham số ?role=player
+      const url = new URL(window.location.href);
+      url.searchParams.set('role', 'player');
+      window.open(url.toString(), '_blank');
+    }
+
+    // -------------------------------------------------------------
+    // ĐIỀU KHIỂN CUỘC THI TỪ GIÁO VIÊN
+    // -------------------------------------------------------------
+    function startCountdownAndRace() {
+      if (compState.status === 'running') return;
+
+      const modal = document.getElementById('countdown-modal');
+      const numEl = document.getElementById('countdown-number');
+      const labelEl = document.getElementById('countdown-label');
+      modal.classList.remove('hidden');
+
+      let count = 3;
+      numEl.textContent = count;
+      labelEl.textContent = "CHUẨN BỊ...";
+      playBeep(440, 'triangle', 0.15, 0.3);
+
+      const countdownTimer = setInterval(() => {
+        count--;
+        if (count > 0) {
+          numEl.textContent = count;
+          playBeep(440, 'triangle', 0.15, 0.3);
+        } else if (count === 0) {
+          numEl.textContent = "BẮT ĐẦU!";
+          labelEl.textContent = "CÁC NHÓM THI ĐUA NÀO!";
+          playBeep(880, 'sine', 0.4, 0.4);
+        } else {
+          clearInterval(countdownTimer);
+          modal.classList.add('hidden');
+
+          // Thiết lập trạng thái đang chạy
+          compState.status = 'running';
+          compState.startTime = Date.now();
+          compState.elapsedTime = 0;
+          
+          // Đặt lại dữ liệu các nhóm
+          for (let i = 1; i <= 5; i++) {
+            compState.teamsData[i] = {
+              submitted: false,
+              answers: [null, null, null],
+              correctCount: 0,
+              timeTaken: 0,
+              rank: null
+            };
+          }
+
+          runClientTimer(compState.startTime);
+          broadcastState('START_RACE');
+          updateAllUI();
+        }
+      }, 900);
+    }
+
+    function runClientTimer(startTime) {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (compState.status !== 'running') {
+          clearInterval(timerInterval);
+          return;
+        }
+        const now = Date.now();
+        const diff = (now - startTime) / 1000;
+        compState.elapsedTime = diff;
+        const text = diff.toFixed(1) + 's';
+        document.getElementById('tv-timer').textContent = text;
+        document.getElementById('player-timer').textContent = text;
+      }, 100);
+    }
+
+    function stopClientTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+    }
+
+    function lockAndEvaluate() {
+      if (compState.status !== 'running') return;
+      compState.status = 'locked';
+      stopClientTimer();
+      calculateRankings();
+      broadcastState('LOCK_RACE');
+      updateAllUI();
+      triggerConfetti();
+      playCelebrationSound();
+    }
+
+    function resetAllCompetition() {
+      stopClientTimer();
+      compState.status = 'idle';
+      compState.startTime = 0;
+      compState.elapsedTime = 0;
+      for (let i = 1; i <= 5; i++) {
+        compState.teamsData[i] = {
+          submitted: false,
+          answers: [null, null, null],
+          correctCount: 0,
+          timeTaken: 0,
+          rank: null
+        };
+      }
+      document.getElementById('tv-timer').textContent = '00.0s';
+      document.getElementById('player-timer').textContent = '00.0s';
+
+      broadcastState('RESET_RACE');
+      updateAllUI();
+    }
+
+    // -------------------------------------------------------------
+    // TÍNH TOÁN XẾP HẠNG & XỬ LÝ NỘP BÀI
+    // -------------------------------------------------------------
+    function calculateRankings() {
+      // Sắp xếp các nhóm theo tiêu chí:
+      // 1. Số câu đúng nhiều nhất (giảm dần)
+      // 2. Nếu bằng câu đúng thì nhóm nào nộp nhanh nhất (thời gian nhỏ hơn)
+      const list = Object.keys(compState.teamsData).map(id => {
+        return {
+          id: parseInt(id),
+          ...compState.teamsData[id]
+        };
+      });
+
+      // Lọc các nhóm đã nộp bài
+      const submittedTeams = list.filter(t => t.submitted);
+      submittedTeams.sort((a, b) => {
+        if (b.correctCount !== a.correctCount) {
+          return b.correctCount - a.correctCount;
+        }
+        return a.timeTaken - b.timeTaken;
+      });
+
+      submittedTeams.forEach((t, idx) => {
+        compState.teamsData[t.id].rank = idx + 1;
+      });
+    }
+
+    // Mô phỏng 5 nhóm nộp bài lần lượt để giáo viên test trực quan
+    function simulateAllTeamsDemo() {
+      if (compState.status !== 'running') {
+        compState.status = 'running';
+        compState.startTime = Date.now();
+        runClientTimer(compState.startTime);
+      }
+
+      // Giả lập từng nhóm nộp cách nhau 1-2 giây
+      const demoAnswers = [
+        { id: 2, answers: ["thân thiết", "nhớ", "vui đùa"], delay: 1200 }, // 3/3 đúng
+        { id: 1, answers: ["thân thiết", "nhớ", "vui đùa"], delay: 2400 }, // 3/3 đúng
+        { id: 5, answers: ["thân thiết", "tươi vui", "vui đùa"], delay: 3500 }, // 2/3 đúng
+        { id: 3, answers: ["thân thiết", "nhớ", "vui đùa"], delay: 4600 }, // 3/3 đúng
+        { id: 4, answers: ["nhớ", "thân thiết", "vui đùa"], delay: 5800 } // 1/3 đúng
+      ];
+
+      demoAnswers.forEach(item => {
+        setTimeout(() => {
+          if (compState.status === 'idle') return;
+          const timeTaken = parseFloat(((Date.now() - compState.startTime) / 1000).toFixed(1));
+          
+          let correct = 0;
+          for (let i = 0; i < 3; i++) {
+            if (item.answers[i] === CORRECT_ANSWERS[i]) correct++;
+          }
+
+          compState.teamsData[item.id] = {
+            submitted: true,
+            answers: item.answers,
+            correctCount: correct,
+            timeTaken: timeTaken,
+            rank: null
+          };
+
+          calculateRankings();
+          broadcastState('TEAM_SUBMITTED', { teamId: item.id });
+          updateAllUI();
+          playBeep(659.25, 'sine', 0.15, 0.25);
+
+          // Nếu cả 5 nhóm đã nộp thì tự động khóa và chúc mừng
+          const allSubmitted = Object.values(compState.teamsData).every(t => t.submitted);
+          if (allSubmitted) {
+            lockAndEvaluate();
+          }
+        }, item.delay);
+      });
+    }
+
+    // -------------------------------------------------------------
+    // LOGIC DÀNH CHO GIAO DIỆN IPAD HỌC SINH
+    // -------------------------------------------------------------
+    function onSelectTeam(val) {
+      currentTeamId = parseInt(val);
+      playBeep(523.25, 'sine', 0.1, 0.2);
+      updateAllUI();
+    }
+
+    function initPlayerBank() {
+      const container = document.getElementById('player-words-bank');
+      container.innerHTML = '';
+
+      WORDS.forEach(word => {
+        const isSelected = playerSlotValues.includes(word);
+        const btn = document.createElement('button');
+        btn.disabled = isSelected || compState.status !== 'running' || compState.teamsData[currentTeamId].submitted;
+        
+        btn.className = `p-3 md:p-4 rounded-2xl font-baloo text-xl md:text-2xl font-extrabold border-3 md:border-4 transition duration-150 flex items-center justify-center gap-1.5 shadow-md ${
+          isSelected || compState.teamsData[currentTeamId].submitted
+          ? 'bg-slate-100 border-slate-300 text-slate-400 cursor-not-allowed opacity-40 shadow-none'
+          : 'bg-gradient-to-b from-emerald-50 to-teal-100 border-emerald-400 text-teal-950 hover:bg-emerald-200 active:scale-95'
+        }`;
+
+        btn.innerHTML = `<span>🍃</span> <span>${word}</span>`;
+        btn.onclick = () => onPlayerPickWord(word);
+        container.appendChild(btn);
+      });
+
+      renderPlayerSlots();
+    }
+
+    function renderPlayerSlots() {
+      for (let i = 0; i < 3; i++) {
+        const slotBtn = document.getElementById(`p-slot-${i}`);
+        const word = playerSlotValues[i];
+        const isTeamSubmitted = compState.teamsData[currentTeamId].submitted;
+
+        slotBtn.classList.remove('slot-active', 'border-emerald-500', 'bg-emerald-100', 'border-sky-300', 'bg-white/70');
+
+        if (word) {
+          slotBtn.className = "inline-flex items-center justify-center min-w-[120px] md:min-w-[150px] h-11 md:h-12 mx-1 px-3.5 border-3 md:border-4 border-teal-500 bg-teal-100 text-teal-950 font-baloo text-xl md:text-2xl font-bold rounded-2xl cursor-pointer transition-all align-middle shadow-md";
+          slotBtn.innerHTML = `<span>${word}</span> ${!isTeamSubmitted ? '<span class="text-xs text-rose-500 ml-1.5">✕</span>' : ''}`;
+        } else {
+          const isActive = (i === playerActiveSlot);
+          slotBtn.className = `inline-flex items-center justify-center min-w-[120px] md:min-w-[150px] h-11 md:h-12 mx-1 px-3 border-3 md:border-4 border-dashed rounded-2xl cursor-pointer transition-all align-middle shadow-sm ${
+            isActive && compState.status === 'running' && !isTeamSubmitted ? 'slot-active' : 'border-sky-300 bg-white/70'
+          }`;
+          slotBtn.innerHTML = `<span class="text-sky-400 text-sm md:text-base italic">[ Ô số ${i + 1} ]</span>`;
+        }
+      }
+    }
+
+    function onPlayerPickWord(word) {
+      if (compState.status !== 'running') return;
+      if (compState.teamsData[currentTeamId].submitted) return;
+      if (playerSlotValues.includes(word)) return;
+
+      playBeep(659.25, 'sine', 0.08, 0.2);
+
+      let targetSlot = playerActiveSlot;
+      if (playerSlotValues[targetSlot] !== null) {
+        targetSlot = playerSlotValues.findIndex(v => v === null);
+      }
+
+      if (targetSlot !== -1) {
+        playerSlotValues[targetSlot] = word;
+        const nextBlank = playerSlotValues.findIndex(v => v === null);
+        playerActiveSlot = nextBlank !== -1 ? nextBlank : 0;
+      }
+
+      initPlayerBank();
+    }
+
+    function handlePlayerSlotClick(idx) {
+      if (compState.status !== 'running') return;
+      if (compState.teamsData[currentTeamId].submitted) return;
+
+      if (playerSlotValues[idx]) {
+        playBeep(329.63, 'triangle', 0.08, 0.2);
+        playerSlotValues[idx] = null;
+        playerActiveSlot = idx;
+        initPlayerBank();
+      } else {
+        playerActiveSlot = idx;
+        renderPlayerSlots();
+      }
+    }
+
+    function clearPlayerSlots() {
+      if (compState.teamsData[currentTeamId].submitted) return;
+      playBeep(261.63, 'triangle', 0.1, 0.2);
+      playerSlotValues = [null, null, null];
+      playerActiveSlot = 0;
+      initPlayerBank();
+    }
+
+    function submitPlayerAnswers() {
+      if (compState.status !== 'running') return;
+      if (compState.teamsData[currentTeamId].submitted) return;
+
+      const hasEmpty = playerSlotValues.some(v => v === null);
+      if (hasEmpty) {
+        playBeep(220, 'sawtooth', 0.2, 0.25);
+        document.getElementById('player-submit-btn').classList.add('shake-anim');
+        setTimeout(() => document.getElementById('player-submit-btn').classList.remove('shake-anim'), 400);
+        return;
+      }
+
+      // Tính câu đúng
+      let correct = 0;
+      for (let i = 0; i < 3; i++) {
+        if (playerSlotValues[i] === CORRECT_ANSWERS[i]) correct++;
+      }
+
+      const timeTaken = parseFloat(((Date.now() - compState.startTime) / 1000).toFixed(1));
+
+      compState.teamsData[currentTeamId] = {
+        submitted: true,
+        answers: [...playerSlotValues],
+        correctCount: correct,
+        timeTaken: timeTaken,
+        rank: null
+      };
+
+      calculateRankings();
+      broadcastState('TEAM_SUBMITTED', { teamId: currentTeamId });
+
+      playCelebrationSound();
+      triggerConfetti();
+
+      updateAllUI();
+    }
+
+    // -------------------------------------------------------------
+    // CẬP NHẬT GIAO DIỆN MÀN HÌNH MÁY CHIẾU & IPAD
+    // -------------------------------------------------------------
+    function updateAllUI() {
+      // 1. Cập nhật thẻ trạng thái của Host
+      const statusBadge = document.getElementById('tv-status-badge');
+      if (compState.status === 'idle') {
+        statusBadge.className = "px-3.5 py-2 bg-amber-100 text-amber-900 font-baloo font-extrabold text-sm md:text-base rounded-2xl border-2 border-amber-300 flex items-center gap-2";
+        statusBadge.innerHTML = `<span class="w-3 h-3 rounded-full bg-amber-500"></span><span>Chưa Bắt Đầu</span>`;
+      } else if (compState.status === 'running') {
+        statusBadge.className = "px-3.5 py-2 bg-emerald-100 text-emerald-900 font-baloo font-extrabold text-sm md:text-base rounded-2xl border-2 border-emerald-400 flex items-center gap-2";
+        statusBadge.innerHTML = `<span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span><span>Đang Thi Đấu Trực Tiếp</span>`;
+      } else if (compState.status === 'locked') {
+        statusBadge.className = "px-3.5 py-2 bg-purple-100 text-purple-900 font-baloo font-extrabold text-sm md:text-base rounded-2xl border-2 border-purple-400 flex items-center gap-2";
+        statusBadge.innerHTML = `<span>🏆</span><span>Đã Khóa Bài / Có Kết Quả</span>`;
+      }
+
+      // 2. Render 5 nhóm trên Bảng Thi Đua của TV
+      const container = document.getElementById('teams-dashboard-container');
+      container.innerHTML = '';
+
+      TEAMS.forEach(team => {
+        const tData = compState.teamsData[team.id];
+        const card = document.createElement('div');
+        
+        let rankBadge = '';
+        if (tData.rank === 1 && tData.correctCount === 3) {
+          rankBadge = `<span class="px-2.5 py-1 bg-gradient-to-r from-amber-400 to-yellow-300 text-amber-950 rounded-xl font-baloo font-black text-xs md:text-sm border border-amber-500 shadow-md animate-bounce flex items-center gap-1">🥇 HẠNG 1</span>`;
+        } else if (tData.rank === 2) {
+          rankBadge = `<span class="px-2.5 py-1 bg-slate-200 text-slate-800 rounded-xl font-baloo font-black text-xs border border-slate-400">🥈 HẠNG 2</span>`;
+        } else if (tData.rank === 3) {
+          rankBadge = `<span class="px-2.5 py-1 bg-amber-200 text-amber-900 rounded-xl font-baloo font-black text-xs border border-amber-400">🥉 HẠNG 3</span>`;
+        }
+
+        // Tạo 3 badge hiển thị đáp án của từng nhóm
+        let answersPreview = '';
+        if (tData.submitted) {
+          answersPreview = tData.answers.map((ans, idx) => {
+            const isCorrect = (ans === CORRECT_ANSWERS[idx]);
+            return `
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs md:text-sm font-baloo font-bold ${
+                isCorrect 
+                ? 'bg-emerald-100 text-emerald-900 border border-emerald-400' 
+                : 'bg-rose-100 text-rose-900 border border-rose-300'
+              }">
+                <i class="${isCorrect ? 'fa-solid fa-check text-emerald-600' : 'fa-solid fa-xmark text-rose-500'}"></i>
+                <span>${ans || '...'}</span>
+              </span>
+            `;
+          }).join(' ');
+        } else {
+          answersPreview = `
+            <span class="text-xs md:text-sm text-slate-400 italic flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+              Đang thảo luận & chọn từ...
+            </span>
+          `;
+        }
+
+        card.className = `p-3 md:p-3.5 rounded-2xl border-2 md:border-3 transition-all duration-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-2.5 shadow-md ${
+          tData.submitted 
+          ? 'bg-gradient-to-r from-white via-teal-50/60 to-emerald-50 border-emerald-400' 
+          : 'bg-white border-slate-200'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-tr ${team.color} text-white text-xl md:text-2xl flex items-center justify-center shadow-md">
+              ${team.mascot}
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-baloo text-base md:text-lg font-black text-slate-800">${team.name}</span>
+                ${rankBadge}
+              </div>
+              <div class="flex flex-wrap items-center gap-1.5 mt-0.5">
+                ${answersPreview}
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto border-t md:border-t-0 pt-1.5 md:pt-0">
+            <!-- Điểm số đúng -->
+            <div class="text-right">
+              <div class="text-xs text-slate-500 font-bold">Số câu đúng</div>
+              <div class="font-baloo text-base md:text-xl font-extrabold ${tData.correctCount === 3 ? 'text-emerald-600' : 'text-slate-800'}">
+                ${tData.submitted ? `${tData.correctCount}/3 câu` : '---'}
+              </div>
+            </div>
+
+            <!-- Thời gian -->
+            <div class="text-right bg-slate-100 px-3 py-1 rounded-xl border border-slate-200 min-w-[70px]">
+              <div class="text-xs text-slate-500 font-bold">Thời gian</div>
+              <div class="font-mono text-xs md:text-sm font-extrabold text-teal-900">
+                ${tData.submitted ? `${tData.timeTaken}s` : '--'}
+              </div>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      // 3. Cập nhật giao diện iPad
+      const waitingOverlay = document.getElementById('player-waiting-overlay');
+      const workspace = document.getElementById('player-workspace');
+      const waitingTitle = document.getElementById('waiting-title');
+      const waitingDesc = document.getElementById('waiting-desc');
+      const submitBanner = document.getElementById('player-submitted-banner');
+      const submitBtn = document.getElementById('player-submit-btn');
+
+      const myTeamData = compState.teamsData[currentTeamId];
+
+      if (compState.status === 'idle') {
+        waitingOverlay.classList.remove('hidden');
+        workspace.classList.add('hidden');
+        waitingTitle.textContent = "Chờ Cô Giáo Bấm Bắt Đầu...";
+        waitingDesc.textContent = "Các bé trong nhóm hãy hội ý, sẵn sàng các ngón tay để bấm chọn từ thật nhanh nhé!";
+      } else if (compState.status === 'running') {
+        waitingOverlay.classList.add('hidden');
+        workspace.classList.remove('hidden');
+
+        if (myTeamData.submitted) {
+          submitBanner.classList.remove('hidden');
+          submitBtn.disabled = true;
+          submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+          submitBanner.classList.add('hidden');
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        initPlayerBank();
+      } else if (compState.status === 'locked') {
+        workspace.classList.remove('hidden');
+        waitingOverlay.classList.add('hidden');
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        initPlayerBank();
+      }
+    }
+
+    function triggerConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 100,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#059669', '#10b981', '#f59e0b', '#38bdf8', '#ec4899']
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // KHỞI TẠO ỨNG DỤNG & MÃ QR CODE
+    // -------------------------------------------------------------
+    window.onload = function() {
+      // 1. Tạo mã QR Code trỏ đến URL của trang
+      const qrContainer = document.getElementById('qrcode-box');
+      qrContainer.innerHTML = '';
+      
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set('role', 'player');
+      
+      try {
+        new QRCode(qrContainer, {
+          text: currentUrl.toString(),
+          width: 140,
+          height: 140,
+          colorDark: "#065f46",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch (e) {
+        console.error("Lỗi tạo QR code:", e);
+      }
+
+      // 2. Kiểm tra nếu URL có ?role=player thì chuyển sang màn hình iPad ngay
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('role') === 'player') {
+        switchView('player');
+      } else {
+        switchView('host');
+      }
+
+      // Lấy lại dữ liệu cũ nếu đang cùng trình duyệt
+      try {
+        const saved = localStorage.getItem('tv2_comp_state_backup');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.teamsData) {
+            compState = parsed;
+          }
+        }
+      } catch(e) {}
+
+      updateAllUI();
+    };
+  </script>
+</body>
+</html>
